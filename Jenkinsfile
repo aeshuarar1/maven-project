@@ -1,19 +1,19 @@
 pipeline {
     agent any
-    
-    parameters { 
-         string(name: 'tomcat_dev', defaultValue: '52.87.187.59', description: 'Staging Server')
-         string(name: 'tomcat_prod', defaultValue: '52.90.9.87', description: 'Production Server')
-    } 
- 
+
+    parameters {
+         string(name: 'tomcat_dev', defaultValue: '35.166.210.154', description: 'Staging Server')
+         string(name: 'tomcat_prod', defaultValue: '34.209.233.6', description: 'Production Server')
+    }
+
     triggers {
-         pollSCM('* * * * *') // Polling Source Control
+         pollSCM('* * * * *')
      }
- 
+
 stages{
         stage('Build'){
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
             post {
                 success {
@@ -22,18 +22,18 @@ stages{
                 }
             }
         }
- 
+
         stage ('Deployments'){
             parallel{
                 stage ('Deploy to Staging'){
                     steps {
-                        bat  "C:/Program Files/Git/git-bash.exe" --cd-to-home "scp -i /demo.pem **/target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
+                        sh "scp -i /home/jenkins/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
                     }
                 }
- 
-                stage ('Deploy to Production'){
+
+                stage ("Deploy to Production"){
                     steps {
-                        bat "WinSCP -i C:/Users/Divya/demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
+                        sh "scp -i /home/jenkins/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
                     }
                 }
             }
